@@ -1,4 +1,5 @@
 require 'csv'
+
 class Person
   attr_reader "name", "phone_number", "address", "position", "salary", "slack_account", "github_account"
 
@@ -21,6 +22,15 @@ class Database
   end
 
   def add_people
+
+    CSV.open("@people.csv", "w") do |csv|
+      csv << [ "name", "phone", "address", "position", "salary", "slack", "github" ]
+      people.each do |ppl|
+        csv << [ppl[:name], ppl[:phone_number], ppl[:address], ppl[:position], ppl[:slack_account], ppl[:github_account]]
+      end
+    end
+
+    # people = CSV.read("people.csv")
 
     puts "Please provide the name of the person you are adding"
     name = gets.chomp
@@ -59,38 +69,41 @@ class Database
 
      end
   end
-end
 
-def look_for_people
+  def search_people
 
-  puts "What name do you want to search for?"
-  search_name = gets.chomp
+    puts "What name do you want to search for?"
+    search_name = gets.chomp
 
-  found_person = @people.find { |person| person.name == search_name }
+    found_person = people.find { |person| person.name == search_name }
 
-  if found_person
-    puts "Name #{found_person.name}"
-    puts "Phone_number #{found_person.phone_number}"
-    puts "Address #{found_person.address}"
-    puts "Position #{found_person.position}"
-    puts "Salary #{found_person.salary}"
-    puts "Slack_account #{found_person.slack_account}"
-    puts "github_account #{found_person.github_account}"
-  else
-    puts " Sorry but that name is not in our database."
+    if found_person
+      puts "Name #{found_person.name}"
+      puts "Phone_number #{found_person.phone_number}"
+      puts "Address #{found_person.address}"
+      puts "Position #{found_person.position}"
+      puts "Salary #{found_person.salary}"
+      puts "Slack_account #{found_person.slack_account}"
+      puts "github_account #{found_person.github_account}"
+    else
+      puts " Sorry but that name is not in our database."
+    end
   end
-end
 
-def delete_people
+  def delete_people
 
-  puts "Please enter the name you would like to delete"
-  delete_name = gets.chomp
+    puts "Please enter the name you would like to delete"
+    delete_name = gets.chomp
 
-  delete_person = people.delete_if {|person| person.name == delete_name}
-  if delete_person
-    puts " Thank you, #{delete_name} has been deleted from the data base"
-  else
-    puts "Sorry that name does not exist in our system."
+    delete_person = people.delete_if {|person| person.name == delete_name}
+    if delete_person
+      puts " Thank you, #{delete_name} has been deleted from the data base"
+    else
+      puts "Sorry that name does not exist in our system."
+    end
+  end
+
+  def reports_people
   end
 end
 
@@ -109,57 +122,14 @@ loop do
   end
 
   if choice == "s"
-    database.look_for_people
+    database.search_people
   end
 
   if choice == "d"
     database.delete_people
   end
+
+  if choice == "r"
+    database.reports_people
+  end
 end
-  #   puts "Please enter the name you would like to delete"
-  #   delete_name = gets.chomp
-  #
-  #   delete_person = people.delete_if {|person| person.name == delete_name}
-  #   if delete_person
-  #     puts " Thank you, #{delete_name} has been deleted from the data base"
-  #   else
-  #     puts "Sorry that name does not exist in our system."
-  #   end
-  # end
-  # if choice == "r"
-  #   puts "#{people}"
-  # end
-
-    # puts "What name do you want to search for?"
-    # search_name = gets.chomp
-    #
-    # found_person = people.find { |person| person.name == search_name }
-    #
-    # if found_person
-    #   puts "Name #{found_person.name}"
-    #   puts "Phone_number #{found_person.phone_number}"
-    #   puts "Address #{found_person.address}"
-    #   puts "Position #{found_person.position}"
-    #   puts "Salary #{found_person.salary}"
-    #   puts "Slack_account #{found_person.slack_account}"
-    #   puts "github_account #{found_person.github_account}"
-    # else
-    #   puts " Sorry but that name is not in our database."
-  #   end
-  # end
-
-  # if choice == "d"
-#     puts "Please enter the name you would like to delete"
-#     delete_name = gets.chomp
-#
-#     delete_person = people.delete_if {|person| person.name == delete_name}
-#     if delete_person
-#       puts " Thank you, #{delete_name} has been deleted from the data base"
-#     else
-#       puts "Sorry that name does not exist in our system."
-#     end
-#   end
-#   if choice == "r"
-#     puts "#{people}"
-#   end
-# end
