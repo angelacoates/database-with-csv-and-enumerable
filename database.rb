@@ -30,7 +30,7 @@ class Database
       end
     end
 
-    # people = CSV.read("people.csv")
+    @people = CSV.read("@people.csv")
 
     puts "Please provide the name of the person you are adding"
     name = gets.chomp
@@ -69,6 +69,8 @@ class Database
 
      end
   end
+
+  @people = CSV.read("@people.csv")
 
   def search_people
 
