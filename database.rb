@@ -1,16 +1,17 @@
 require 'csv'
+require 'erb'
 
 class Person
-  attr_reader "name", "phone_number", "address", "position", "salary", "slack_account", "github_account"
+  attr_reader "name", "phone", "address", "position", "salary", "slack", "github"
 
-  def initialize(name, phone_number, address, position, salary, slack_account, github_account)
+  def initialize(name, phone, address, position, salary, slack, github)
     @name = name
-    @phone_number = phone_number
+    @phone = phone
     @address = address
     @position = position
     @salary = salary
-    @slack_account = slack_account
-    @github_account = github_account
+    @slack = slack
+    @github = github
   end
 end
 
@@ -19,18 +20,29 @@ class Database
 
   def initialize
     @people = []
+    CSV.foreach("employees.csv", headers: true) do |row|
+      name = row["name"]
+      phone = row["phone"]
+      address = row["address"]
+      position = row["position"]
+      salary = row["salary"]
+      slack = row["slack"]
+      github = row["github"]
+
+      person = Person.new(name, phone, address, position, salary, slack, github)
+
+      @people << person
+    end
   end
 
   def add_people
 
-    CSV.open("@people.csv", "w") do |csv|
-      csv << [ "name", "phone", "address", "position", "salary", "slack", "github" ]
-      people.each do |ppl|
-        csv << [ppl[:name], ppl[:phone_number], ppl[:address], ppl[:position], ppl[:slack_account], ppl[:github_account]]
-      end
-    end
-
-    @people = CSV.read("@people.csv")
+    # CSV.open("@people.csv", "w") do |csv|
+    #   csv << [ "name", "phone", "address", "position", "salary", "slack", "github" ]
+    #   people.each do |ppl|
+    #     csv << [ppl[:name], ppl[:phone_number], ppl[:address], ppl[:position], ppl[:slack_account], ppl[:github_account]]
+    #   end
+    # end
 
     puts "Please provide the name of the person you are adding"
     name = gets.chomp
@@ -41,7 +53,7 @@ class Database
     else
       puts "Please provide the phone number of the person you are adding "
 
-      phone_number = gets.chomp
+      phone = gets.chomp
 
       puts " Please provide the address of the person you are trying to add"
 
@@ -57,20 +69,19 @@ class Database
 
       puts "Please provide the slack account of the person you are adding"
 
-      slack_account = gets.chomp
+      slack = gets.chomp
 
       puts "Please provide the GitHub account for the person you are adding"
 
-      github_account = gets.chomp
+      github = gets.chomp
 
-      person = Person.new(name, phone_number, address, position, salary, slack_account, github_account)
+      person = Person.new(name, phone, address, position, salary, slack, github)
 
       @people << person
-
-     end
+    end
   end
 
-  @people = CSV.read("@people.csv")
+  # @people = CSV.read("@people.csv")
 
   def search_people
 
@@ -81,12 +92,12 @@ class Database
 
     if found_person
       puts "Name #{found_person.name}"
-      puts "Phone_number #{found_person.phone_number}"
+      puts "Phone_number #{found_person.phone}"
       puts "Address #{found_person.address}"
       puts "Position #{found_person.position}"
       puts "Salary #{found_person.salary}"
-      puts "Slack_account #{found_person.slack_account}"
-      puts "github_account #{found_person.github_account}"
+      puts "Slack #{found_person.slack}"
+      puts "github #{found_person.github}"
     else
       puts " Sorry but that name is not in our database."
     end
@@ -105,7 +116,21 @@ class Database
     end
   end
 
+  def save_people
+    CSV.open("employees.csv", "w") do |csv|
+      csv << [ "name", "phone", "address", "position", "salary", "slack", "github" ]
+      @people.each do |person|
+        csv << [person.name, person.phone, person.address, person.position, person.slack, person.github]
+      end
+    end
+  end
+
   def reports_people
+    template_string = File.read("report.html.erb")
+    erb_template = ERB.new(template_string)
+    html = erb_template.result(binding)
+
+    File.write("report.html", html)
   end
 end
 
@@ -121,6 +146,7 @@ loop do
 
   if choice == "a"
     database.add_people
+    database.save_people
   end
 
   if choice == "s"
@@ -129,6 +155,7 @@ loop do
 
   if choice == "d"
     database.delete_people
+    database.save_people
   end
 
   if choice == "r"
